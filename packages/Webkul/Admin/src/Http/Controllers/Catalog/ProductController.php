@@ -149,7 +149,8 @@ class ProductController extends Controller
     public function update(ProductForm $request, int $id)
     {
         //new
-        
+        //
+
         $request = request();
         $attrs = [];
         $prices = [];

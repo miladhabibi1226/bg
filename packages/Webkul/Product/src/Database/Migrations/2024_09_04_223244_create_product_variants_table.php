@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             //new
+            //
             $table->increments('id');
             $table->integer('product_id')->unsigned()->nullable();
             $table->integer('attribute_id')->unsigned()->nullable();

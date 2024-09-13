@@ -14,6 +14,7 @@ class ProductVariant extends Model
     protected $table = 'product_variants';
 
     // Specify the fillable fields for mass assignment
+    //new
     protected $fillable = [
         'product_id',
         'attribute_id',

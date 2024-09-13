@@ -21,6 +21,8 @@ use Webkul\Product\Repositories\ProductDownloadableLinkRepository;
 use Webkul\Product\Repositories\ProductDownloadableSampleRepository;
 use Webkul\Product\Repositories\ProductInventoryRepository;
 use Webkul\Product\Repositories\ProductRepository;
+use Webkul\Product\Models\ProductVariant;
+use Webkul\Attribute\Models\Attribute;
 
 class ProductController extends Controller
 {
@@ -146,6 +148,41 @@ class ProductController extends Controller
      */
     public function update(ProductForm $request, int $id)
     {
+        //new
+        //
+
+        $request = request();
+        $attrs = [];
+        $prices = [];
+        $attrKeys = array_filter(array_keys($request->all()), function ($key) {
+            return strpos($key, 'attr-') === 0;
+        });
+
+        foreach ($attrKeys as $index => $key) {
+
+            $name = explode('-', $key)[1];
+
+            $attrs[] = $request->input('attr-' . $name);
+            $prices[] = $request->input('price-' . $name);
+            if ($index == 33) {
+            }
+        }
+        for ($i = 0; $i < count($attrs); $i++) {
+            for ($j = 0; $j < count($attrs[$i]); $j++) {
+                if (!empty($attrs[$i][$j]) && $prices[$i][$j]) {
+                    $variant = ProductVariant::where('product_id', $id)
+                        ->where('attribute_id', $attrs[$i][$j])
+                        ->first();
+                    if (!$variant) {
+                        ProductVariant::create([
+                            'product_id' => $id,
+                            'attribute_id' => $attrs[$i][$j],
+                            'price' => $prices[$i][$j]
+                        ]);
+                    }
+                }
+            }
+        }
         Event::dispatch('catalog.product.update.before', $id);
 
         $product = $this->productRepository->update(request()->all(), $id);
@@ -332,7 +369,7 @@ class ProductController extends Controller
             $searchEngine = 'elastic';
 
             $indexNames = core()->getAllChannels()->map(function ($channel) {
-                return 'products_'.$channel->code.'_'.app()->getLocale().'_index';
+                return 'products_' . $channel->code . '_' . app()->getLocale() . '_index';
             })->toArray();
         }
 
